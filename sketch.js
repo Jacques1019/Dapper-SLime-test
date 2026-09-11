@@ -953,7 +953,7 @@ for(var i = 0; i < platforms.length; i++){
 }
 
 if(dropThrough && dropThroughPlatform != null){
-	if(gameChar_y > dropThroughPlatform != null){
+	if(gameChar_y > dropThroughPlatform.y + 20){
 		dropThrough = false
 		dropThroughPlatform = null
 	}
@@ -966,13 +966,12 @@ for(var i = 0; i < enemy.length; i++){
 	var enemyX = enemy[i].currentX
 	var enemyY = enemy[i].y
 
-	//var xDist = abs(gameChar_world_x - enemyX)
 	var enemyHead = enemyY - 50
 	var enemyFeet = enemyY
 
 	//player hurtbox
-	var playerLeft = gameChar_world_x - 15
-	var playerRight = gameChar_world_x + 15
+	var playerLeft = gameChar_world_x - 23
+	var playerRight = gameChar_world_x + 23
 	var playerTop = gameChar_y - 45
 	var playerFeet = gameChar_y
 
@@ -986,7 +985,7 @@ for(var i = 0; i < enemy.length; i++){
 	var horizontalOverlap = playerRight > enemyLeft && playerLeft < enemyRight
 	
 	//Above(stomp)
-	if(horizontalOverlap && previousY <= enemyHead && currentY >= enemyHead && velocity > 0){
+	if(horizontalOverlap && previousY <= enemyHead + 5 && currentY >= enemyHead - 5 && velocity > 0){
 		enemy[i].isDefeated = true
 		gameChar_y = enemyHead
 		velocity = jump_strength * 0.7
@@ -995,7 +994,7 @@ for(var i = 0; i < enemy.length; i++){
 		game_score += 100
 	}
 
-	//Below
+	//Side and Below
 	else if(horizontalOverlap && playerFeet > enemyHead + 10 && playerTop < enemyFeet){
 		lives--
 		if(lives > 0){
@@ -1012,28 +1011,6 @@ for(var i = 0; i < enemy.length; i++){
 			gameOverVideo.play()
 		}
 	}
-
-	//Side collision
-	// else if(playerRight > enemyLeft &&
-	// 		playerLeft < enemyRight &&
-	// 		currentY > enemyHead &&
-	// 		playerTop < enemyFeet){
-	// 	lives--
-	// 	if(lives > 0){
-	// 		startGame()
-	// 	}
-	// 	else{
-	// 		isPlummeting = false
-	// 		isFalling = false
-	// 		velocity = 0
-
-	// 		gameOver = true
-	// 		gameOverMusic.play()
-	// 		gameOverVideo.stop()
-	// 		gameOverVideo.play()
-	// 	}
-	// }
-	
 }
 
 //coyote time
