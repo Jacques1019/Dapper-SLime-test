@@ -402,6 +402,7 @@ function checkCanyon(t_canyon){
 	if(gameChar_world_x > t_canyon.x_pos + 25 && gameChar_world_x < t_canyon.x_pos + t_canyon.width - 25 && gameChar_y >= floorPos_y)// I had to decrease the difficulty a slight bit by adding and subtracting the 10, was incredibly brutal otherwise hehe
 	{
 		isPlummeting = true
+		
 	}
 }
 
@@ -891,7 +892,7 @@ function draw()
 if(!isPlummeting){
 	var current_speed = move_speed + bhop_speed
 if(isLeft==true){
-	if(gameChar_x > width * 0.2){
+	if(gameChar_x > width * 0.4){
 		gameChar_x -= current_speed;
 	}
 	else{
@@ -899,7 +900,7 @@ if(isLeft==true){
 	}
 }
 if(isRight==true){
-	if(gameChar_x < width * 0.8){
+	if(gameChar_x < width * 0.6){
 		gameChar_x += current_speed;
 	}
 	else{
@@ -987,6 +988,10 @@ for(var i = 0; i < enemy.length; i++){
 			startGame()
 		}
 		else{
+			isPlummeting = false
+			isFalling = false
+			velocity = 0
+
 			gameOver = true
 			gameOverMusic.play()
 			gameOverVideo.stop()
@@ -1004,6 +1009,10 @@ for(var i = 0; i < enemy.length; i++){
 			startGame()
 		}
 		else{
+			isPlummeting = false
+			isFalling = false
+			velocity = 0
+
 			gameOver = true
 			gameOverMusic.play()
 			gameOverVideo.stop()
@@ -1063,6 +1072,10 @@ if(gameChar_y > height){
 		startGame()
 	}
 	else{
+		isPlummeting = false
+		isFalling = false
+		velocity = 0
+
 		gameOver = true
 		gameOverMusic.play()
 		gameOverVideo.stop()
@@ -1081,6 +1094,10 @@ function keyPressed(){
 		isRight = true
 	}
 	else if(keyCode == 32){
+		if(isPlummeting){
+			jump_buffer_counter = 0
+			return
+		}
 		jump_buffer_counter = jump_buffer
 
 		var canJump = gameChar_y == floorPos_y
@@ -1108,6 +1125,10 @@ function keyPressed(){
 		}
 	}
 	if(keyCode == ENTER && gameOver == true){
+		isPlummeting = false
+		isFalling = false
+		velocity = 0
+
 		game_score = 0
 		lives = 3
 		gameOver = false
