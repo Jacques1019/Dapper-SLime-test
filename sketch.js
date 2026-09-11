@@ -31,13 +31,15 @@ var gameOver = false
 var livesAwarded = 0
 var flagpole
 var gameOverMusic
+var coinMusic
+var flagMusic
 
 var platforms
 var gameOverVideo
 var isSafari = false
 
 var velocity = 0
-var jump_strength = -13//-14.5
+var jump_strength = -12//-13
 var gravity = 0.56
 var jump_cut = 0.5
 
@@ -51,7 +53,7 @@ var move_speed = 4
 var bhop_speed = 0
 var bhop_bonus = 0.5
 var bhop_max = 3
-var bhop_window = 6
+var bhop_window = 10
 var bhop_counter = 0
 
 var dropThrough = false
@@ -64,6 +66,7 @@ function setup()
 	createCanvas(1024, 576)
 	floorPos_y = height * 3/4
 	gameOverMusic = loadSound("assets/GameOver.mp3")
+	flagMusic = loadSound("assets/Flag.mp3")
 
 	isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document)// Detect if user is on safari to avoid bug cause due to intercompany pigheadedness regarding transparency file compatibility on chromium and webkit browsers
 
@@ -754,8 +757,9 @@ function renderFlagpole(){
 }
 function checkFlagpole(){
 	var d = abs(gameChar_world_x - flagpole.x_pos)
-	if(d < 15){
+	if(d < 15 && !flagpole.isReached){
 		flagpole.isReached = true
+		flagMusic.play()
 	}
 }
 
@@ -962,17 +966,27 @@ for(var i = 0; i < enemy.length; i++){
 	var enemyX = enemy[i].currentX
 	var enemyY = enemy[i].y
 
-	var xDist = abs(gameChar_world_x - enemyX)
+	//var xDist = abs(gameChar_world_x - enemyX)
 	var enemyHead = enemyY - 50
 	var enemyFeet = enemyY
-	var playerLeft = gameChar_world_x - 20
-	var playerRight = gameChar_world_x + 20
-	var playerTop = gameChar_y - 50
-	var enemyLeft = enemyX - 25
-	var enemyRight = enemyX + 25
+
+	//player hurtbox
+	var playerLeft = gameChar_world_x - 15
+	var playerRight = gameChar_world_x + 15
+	var playerTop = gameChar_y - 45
+	var playerFeet = gameChar_y
+
+	//enemy hurtbox
+	var enemyLeft = enemyX - 20
+	var enemyRight = enemyX + 20
+
+	var previousY = platformY
+	var currentY = gameChar_y
+
+	var horizontalOverlap = playerRight > enemyLeft && playerLeft < enemyRight
 	
 	//Above(stomp)
-	if(xDist < 35 && platformY <= enemyHead && gameChar_y >= enemyHead && velocity > 0){
+	if(horizontalOverlap && previousY <= enemyHead && currentY >= enemyHead && velocity > 0){
 		enemy[i].isDefeated = true
 		gameChar_y = enemyHead
 		velocity = jump_strength * 0.7
@@ -982,7 +996,7 @@ for(var i = 0; i < enemy.length; i++){
 	}
 
 	//Below
-	else if(xDist < 35 && platformY >= enemyFeet && gameChar_y <= enemyFeet && velocity < 0){
+	else if(horizontalOverlap && playerFeet > enemyHead + 10 && playerTop < enemyFeet){
 		lives--
 		if(lives > 0){
 			startGame()
@@ -1000,25 +1014,25 @@ for(var i = 0; i < enemy.length; i++){
 	}
 
 	//Side collision
-	else if(playerRight > enemyLeft &&
-			playerLeft < enemyRight &&
-			gameChar_y > enemyHead &&
-			playerTop < enemyFeet){
-		lives--
-		if(lives > 0){
-			startGame()
-		}
-		else{
-			isPlummeting = false
-			isFalling = false
-			velocity = 0
+	// else if(playerRight > enemyLeft &&
+	// 		playerLeft < enemyRight &&
+	// 		currentY > enemyHead &&
+	// 		playerTop < enemyFeet){
+	// 	lives--
+	// 	if(lives > 0){
+	// 		startGame()
+	// 	}
+	// 	else{
+	// 		isPlummeting = false
+	// 		isFalling = false
+	// 		velocity = 0
 
-			gameOver = true
-			gameOverMusic.play()
-			gameOverVideo.stop()
-			gameOverVideo.play()
-		}
-	}
+	// 		gameOver = true
+	// 		gameOverMusic.play()
+	// 		gameOverVideo.stop()
+	// 		gameOverVideo.play()
+	// 	}
+	// }
 	
 }
 
@@ -1087,10 +1101,10 @@ gameChar_world_x = gameChar_x - scrollpos
 
 }
 function keyPressed(){
-	if(keyCode == 37){
+	if(keyCode == 37 || keyCode == 65){
 		isLeft = true
 	}
-	else if(keyCode == 39){
+	else if(keyCode == 39 || keyCode == 68){
 		isRight = true
 	}
 	else if(keyCode == 32){
@@ -1138,7 +1152,7 @@ function keyPressed(){
 		startGame()
 	}
 
-	else if(keyCode == 40){
+	else if(keyCode == 40 || keyCode == 83){
 		if(!isFalling){
 			for(var i = 0; i < platforms.length; i++){
 				if(platforms[i].checkContact(gameChar_world_x, gameChar_y) == true){
@@ -1152,10 +1166,10 @@ function keyPressed(){
 }
 
 function keyReleased(){
-	if(keyCode == 37){
+	if(keyCode == 37 || keyCode == 65){
 		isLeft = false
 	}
-	else if(keyCode == 39){
+	else if(keyCode == 39 || keyCode == 68){
 		isRight = false
 	}
 	else if(keyCode == 32){
